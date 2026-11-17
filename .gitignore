@@ -31,15 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-
-###Dependencias:###
-Spring Web
-Spring Boot DevTools
-Spring Data JPA
-MySQL Driver
-Lombok
-
-DB veterinaria
-
-
