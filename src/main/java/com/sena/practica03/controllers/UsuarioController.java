@@ -1,6 +1,5 @@
 package com.sena.practica03.controllers;
 
-<<<<<<< HEAD
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,11 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-=======
 import org.springframework.web.bind.annotation.RestController;
-
-import com.sena.practica03.models.Usuario;
-import com.sena.practica03.repositoryes.UsuarioRepository;
 
 import java.util.List;
 
@@ -36,12 +31,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
->>>>>>> 94eb899b2aed3102a888beb60643f2b1df9e6791
 import org.springframework.web.bind.annotation.PutMapping;
 
 
 
-<<<<<<< HEAD
 @RestController 
 @RequestMapping ("api/usuarios")
 @RequiredArgsConstructor 
@@ -117,8 +110,7 @@ public class UsuarioController {
     
 
 }
-=======
-
+/* 
 @RestController 
 public class UsuarioController {
 
@@ -207,11 +199,5 @@ public class UsuarioController {
        
     }
     
-    
-
-
-
     }
-    
-
->>>>>>> 94eb899b2aed3102a888beb60643f2b1df9e6791
+    */

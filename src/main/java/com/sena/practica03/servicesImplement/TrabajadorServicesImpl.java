@@ -16,6 +16,7 @@ import com.sena.practica03.services.TrabajadorServices;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+
 @Service 
 @RequiredArgsConstructor 
 public class TrabajadorServicesImpl implements TrabajadorServices{
