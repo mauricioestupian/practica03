@@ -13,23 +13,15 @@ import com.sena.practica03.services.UsuarioServices;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
-@Service 
-@RequiredArgsConstructor 
-public class UsuarioServicesImpl implements UsuarioServices{
+@Service
+@RequiredArgsConstructor
+public class UsuarioServicesImpl implements UsuarioServices {
 
     private final UsuarioRespository usuarioRespository;
     private final UsuarioMapper usuarioMapper;
 
-    //Inyeccion de dependencias Nativa
-    /*public UsuarioServicesImpl(UsuarioRespository usuarioRespository,
-        UsuarioMapper usuarioMapper){
-            this.usuarioRespository=usuarioRespository;
-            this.usuarioMapper=usuarioMapper;
-        }
-    */
-
-    @Override 
-    public UsuarioDto guardar(UsuarioDto usuarioDto){
+    @Override
+    public UsuarioDto guardar(UsuarioDto usuarioDto) {
         Usuario usuario = usuarioMapper.convierteaEntidad(usuarioDto);
 
         usuario.setId(null);
@@ -39,52 +31,49 @@ public class UsuarioServicesImpl implements UsuarioServices{
         return usuarioMapper.convierteaDto(usuarioGuardado);
     }
 
-    //Listar todos los Usuarios
-    @Override 
-    public List<UsuarioDto> listarTodos(){
+    // Listar todos los Usuarios
+    @Override
+    public List<UsuarioDto> listarTodos() {
         return usuarioRespository.findAll()
-        .stream()
-        .map(usuarioMapper::convierteaDto)
-        .toList();
+                .stream()
+                .map(usuarioMapper::convierteaDto)
+                .toList();
     }
 
-    //consultar Usuario po Id
-    @Override 
-    public UsuarioDto buscarPorId(Long id){
-        Usuario usuario=usuarioRespository.findById(id)
-        .orElseThrow(()-> new EntityNotFoundException("Usuario no encontrado"+id)
-        );
-        return  usuarioMapper.convierteaDto(usuario);
+    // consultar Usuario po Id
+    @Override
+    public UsuarioDto buscarPorId(Long id) {
+        Usuario usuario = usuarioRespository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado" + id));
+        return usuarioMapper.convierteaDto(usuario);
     }
 
-    //Actualizar usuario
-    @Override 
-    public UsuarioDto actualizar(Long id, UsuarioDto usuarioDto){
+    // Actualizar usuario
+    @Override
+    public UsuarioDto actualizar(Long id, UsuarioDto usuarioDto) {
         Usuario usuarioEncotrado = usuarioRespository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException(
-            "No se encontro Usuario con Id, "+id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No se encontro Usuario con Id, " + id));
 
+        // Actualizar Datos
+        usuarioEncotrado.setNom(usuarioDto.getNomb());
+        usuarioEncotrado.setApe(usuarioDto.getApell());
+        usuarioEncotrado.setDir(usuarioDto.getDirec());
+        usuarioEncotrado.setTel(usuarioDto.getTele());
 
-            //Actualizar Datos
-            usuarioEncotrado.setNom(usuarioDto.getNomb());
-            usuarioEncotrado.setApe(usuarioDto.getApell());
-            usuarioEncotrado.setDir(usuarioDto.getDirec());
-            usuarioEncotrado.setTel(usuarioDto.getTele());
+        Usuario usuarioActualizado = usuarioRespository.save(usuarioEncotrado);
 
-            Usuario usuarioActualizado = usuarioRespository.save(usuarioEncotrado);
-
-            return  usuarioMapper.convierteaDto(usuarioActualizado);
+        return usuarioMapper.convierteaDto(usuarioActualizado);
     }
 
-    @Override 
-public void eliminar(Long id){
-    
-    if(!usuarioRespository.existsById(id)){
-        throw new EntityNotFoundException(
-            "Usuario con :"+id+" No encontrado"
-        );
+    @Override
+    public void eliminar(Long id) {
+
+        if (!usuarioRespository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Usuario con :" + id + " No encontrado");
+        }
+        usuarioRespository.deleteById(id);
     }
-    usuarioRespository.deleteById(id);
-}
 
 }

@@ -12,22 +12,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity 
-@Table (name = "Roles")
-@Getter @Setter 
-@AllArgsConstructor 
-@NoArgsConstructor 
-@Builder 
+@Entity
+@Table(name = "Roles")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Rol {
 
-    @Id 
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (name = "rol", nullable = false, unique = true,length = 50)
+    @Column(name = "rol", nullable = false, unique = true, length = 50)
     private String nom_rol;
 
-    @Column (name = "descripcion", length = 100)
+    @Column(name = "descripcion", length = 100)
     private String descripcion;
 
 }
