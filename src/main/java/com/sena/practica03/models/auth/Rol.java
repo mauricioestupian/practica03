@@ -23,10 +23,10 @@ public class Rol {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Byte id;
 
     @Column(name = "rol", nullable = false, unique = true, length = 50)
-    private String nom_rol;
+    private String nombre;
 
     @Column(name = "descripcion", length = 100)
     private String descripcion;

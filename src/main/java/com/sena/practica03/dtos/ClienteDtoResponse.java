@@ -6,14 +6,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Getter 
-@Setter 
-@NoArgsConstructor 
-@AllArgsConstructor 
-@SuperBuilder 
-public class ClienteDtoResponse extends UsuarioDto{
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+public class ClienteDtoResponse extends UsuarioDto {
 
     private String tipCli;
     private int pts;
+
+    // extraemos el tipo de documento para mostrarlo en la respuesta
+    private String nomTipoDoc;
 
 }

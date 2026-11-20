@@ -2,11 +2,17 @@ package com.sena.practica03.servicesImplement;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sena.practica03.dtos.UsuarioDto;
 import com.sena.practica03.mappers.UsuarioMapper;
+import com.sena.practica03.models.auth.UsuarioAuth;
+import com.sena.practica03.models.usuarios.TipoDocumento;
 import com.sena.practica03.models.usuarios.Usuario;
+import com.sena.practica03.respositoryes.TipoDocumentoRepository;
+import com.sena.practica03.respositoryes.UsuarioAuthRepository;
 import com.sena.practica03.respositoryes.UsuarioRespository;
 import com.sena.practica03.services.UsuarioServices;
 
@@ -17,22 +23,100 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsuarioServicesImpl implements UsuarioServices {
 
+    // Inyección de dependencias mediante constructor, gracias a la anotación
+    // @RequiredArgsConstructor de Lombok
     private final UsuarioRespository usuarioRespository;
+    private final UsuarioAuthRepository usuarioAuthRepository;
+    private final TipoDocumentoRepository tipoDocumentoRepository;
     private final UsuarioMapper usuarioMapper;
+    /*
+     * Inyección de PasswordEncoder para encriptar contraseñas
+     * PasswordEncoder es una interfaz de Spring Security que proporciona métodos
+     * para encriptar y verificar contraseñas. Se utiliza para proteger las
+     * contraseñas de los usuarios antes de almacenarlas en la base de datos.
+     * la dependencia necesaria para usar PasswordEncoder se encuentra en el archivo
+     * pom.xml, donde se incluye la dependencia de Spring Security. Esta dependencia
+     * proporciona la implementación de PasswordEncoder y otras funcionalidades de
+     * seguridad.
+     * revisar el archivo pom.xml para asegurarse de que la dependencia de Spring
+     * Security esté incluida en el proyecto.
+     */
+    private final PasswordEncoder passwordEncoder;
 
+    // Guardar o crear Usuario
     @Override
+    /*
+     * Transactional garantiza que todas las operaciones de base de datos dentro de
+     * un método se ejecuten como una única unidad de trabajo indivisible (todo se
+     * guarda o todo
+     * se deshace si algo falla). Si ocurre una excepción que provoque rollback, se
+     * revierten los cambios realizados dentro de ella.
+     * import org.springframework.transaction.annotation.Transactional;
+     */
+    @Transactional
     public UsuarioDto guardar(UsuarioDto usuarioDto) {
+
+        // 1. Validar que el username no exista
+        if (usuarioAuthRepository.existsByUser(usuarioDto.getUser())) {
+            throw new IllegalArgumentException(
+                    "El user de usuario ya se encuentra registrado");
+        }
+
+        // 2. Validar que el tipo de documento exista
+        TipoDocumento tipoDocumento = tipoDocumentoRepository
+                .findById(usuarioDto.getTipoDoc())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Tipo de documento no encontrado"));
+
+        // 3. Validar que el documento no esté registrado
+        if (usuarioRespository.existsByTipoDocAndNumDoc(
+                tipoDocumento, usuarioDto.getNumDoc())) {
+
+            throw new IllegalArgumentException(
+                    "El documento ya se encuentra registrado");
+        }
+
+        // 4. Convertir DTO a entidad Usuario
         Usuario usuario = usuarioMapper.convierteaEntidad(usuarioDto);
 
         usuario.setId(null);
+        usuario.setTipoDoc(tipoDocumento);
 
+        // 5. Guardar Usuario
         Usuario usuarioGuardado = usuarioRespository.save(usuario);
 
+        // 6. Crear las credenciales de autenticación
+        UsuarioAuth usuarioAuth = UsuarioAuth.builder()
+                .usuario(usuarioGuardado)
+                .user(usuarioDto.getUser())
+                // Encriptar la contraseña antes de guardarla
+                // uso de passwordEncoder para encriptar la contraseña antes de guardarla en la
+                // base de datos. Esto es una buena práctica de seguridad para proteger las
+                // contraseñas de los usuarios.
+                // mediante metodo encode() de PasswordEncoder, que aplica un algoritmo de
+                // hashing a la contraseña proporcionada. El resultado es una versión encriptada
+                // de la contraseña que se almacena en la base de datos en lugar de la
+                // contraseña en texto plano.
+
+                .pass(passwordEncoder.encode(usuarioDto.getPassword()))
+                .habilitado(true)
+                .build();
+
+        // 7. Guardar credenciales
+        usuarioAuthRepository.save(usuarioAuth);
+
+        // 8. Retornar información del usuario
         return usuarioMapper.convierteaDto(usuarioGuardado);
+
     }
 
     // Listar todos los Usuarios
     @Override
+    // el readOnly = true indica que la transacción es de solo lectura, lo que
+    // significa que no se realizarán cambios en la base de datos durante la
+    // ejecución del método. Esto puede mejorar el rendimiento y la eficiencia de la
+    // consulta.
+    @Transactional(readOnly = true)
     public List<UsuarioDto> listarTodos() {
         return usuarioRespository.findAll()
                 .stream()
@@ -42,6 +126,7 @@ public class UsuarioServicesImpl implements UsuarioServices {
 
     // consultar Usuario po Id
     @Override
+    @Transactional(readOnly = true)
     public UsuarioDto buscarPorId(Long id) {
         Usuario usuario = usuarioRespository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado" + id));
@@ -50,6 +135,7 @@ public class UsuarioServicesImpl implements UsuarioServices {
 
     // Actualizar usuario
     @Override
+    @Transactional
     public UsuarioDto actualizar(Long id, UsuarioDto usuarioDto) {
         Usuario usuarioEncotrado = usuarioRespository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -67,6 +153,7 @@ public class UsuarioServicesImpl implements UsuarioServices {
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
 
         if (!usuarioRespository.existsById(id)) {

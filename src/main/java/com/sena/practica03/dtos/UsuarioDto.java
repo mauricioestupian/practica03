@@ -2,10 +2,10 @@ package com.sena.practica03.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,11 +43,12 @@ public class UsuarioDto {
 
     // numDoc no puede ser nulo y debe ser positivo
     @NotNull(message = "El número de documento es obligatorio")
-    @Positive(message = "El número de documento debe ser positivo")
-    private Long numDoc;
+    private String numDoc;
 
     // Credenciales para el registro
     @NotBlank(message = "El nombre de usuario es obligatorio")
+    // El user debe ser un correo electrónico válido
+    @Email(message = "El formato del correo electrónico no es válido")
     @Size(max = 80, message = "El usuario no puede superar los 80 caracteres")
     private String user;
 
