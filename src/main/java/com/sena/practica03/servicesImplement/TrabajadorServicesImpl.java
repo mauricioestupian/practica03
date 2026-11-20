@@ -21,6 +21,7 @@ import com.sena.practica03.respositoryes.TipoDocumentoRepository;
 import com.sena.practica03.respositoryes.TrabajadorRepository;
 import com.sena.practica03.respositoryes.UsuarioAuthRepository;
 import com.sena.practica03.respositoryes.UsuarioAuthRolRepository;
+import com.sena.practica03.respositoryes.UsuarioRespository;
 import com.sena.practica03.services.TrabajadorServices;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -30,7 +31,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TrabajadorServicesImpl implements TrabajadorServices {
 
-    private final TrabajadorRepository traRep;
+     private final UsuarioRespository usuarioRespository;
+        private final TrabajadorRepository traRep;
     private final TrabajadorMapper traMaper;
     private final CargoTrabajadorRepository cargoRepo;
 
@@ -60,6 +62,14 @@ public class TrabajadorServicesImpl implements TrabajadorServices {
                 .findById(dto.getTipoDoc())
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Tipo de documento no encontrado"));
+
+        // 3. Validar que el documento no esté registrado
+        if (usuarioRespository.existsByTipoDocAndNumDoc(
+                tipoDocumento, dto.getNumDoc())) {
+
+            throw new IllegalArgumentException(
+                    "El documento ya se encuentra registrado");
+        }
 
         // 4. Obtener el rol asociado al cargo
         Rol rol = cargo.getRol();

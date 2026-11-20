@@ -22,6 +22,7 @@ import com.sena.practica03.respositoryes.TipoClienteRepository;
 import com.sena.practica03.respositoryes.TipoDocumentoRepository;
 import com.sena.practica03.respositoryes.UsuarioAuthRepository;
 import com.sena.practica03.respositoryes.UsuarioAuthRolRepository;
+import com.sena.practica03.respositoryes.UsuarioRespository;
 import com.sena.practica03.services.ClienteServices;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -39,6 +40,7 @@ public class ClienteServicesImpl implements ClienteServices {
         private final UsuarioAuthRolRepository usuarioAuthRolRepository;
         private final RolRepository rolRepository;
         private final TipoDocumentoRepository tipoDocumentoRepository;
+        private final UsuarioRespository usuarioRespository;
 
         @Override
         // garantiza que todas las operaciones de base de datos dentro de un método se
@@ -50,6 +52,7 @@ public class ClienteServicesImpl implements ClienteServices {
         @Transactional
         public ClienteDtoResponse guardar(ClienteDto clienteDto) {
 
+
                 // 1. buscar id de tipocliente en base de datos
                 TiposCliente tipo = ticlirepo.findById(clienteDto.getTipCli())
                                 .orElseThrow(() -> new EntityNotFoundException("tipo Cliente no encontrado"));
@@ -60,23 +63,30 @@ public class ClienteServicesImpl implements ClienteServices {
                                 .orElseThrow(() -> new EntityNotFoundException(
                                                 "Tipo de documento no encontrado"));
 
-                // 2. Convierte DTO en Entidad
+                // 3. Validar que el documento no esté registrado
+                if (usuarioRespository.existsByTipoDocAndNumDoc(
+                tipoDocumento, clienteDto.getNumDoc())) {
+                    throw new IllegalArgumentException("El documento ya se encuentra registrado");
+                }
+                
+                
+                // 3. Convierte DTO en Entidad
                 Cliente cliente = clienteMapper.toEntidad(clienteDto);
 
-                // 3.El ID del cliente debe ser nul porque es autoincremental
+                // 4.El ID del cliente debe ser nul porque es autoincremental
                 cliente.setId(null);
 
-                // 4.asigna tipocliente "id"
+                // 5.asigna tipocliente "id"
                 cliente.setTipoCliente(tipo);
 
                 // Inicializa los puntos en 0 al crear un nuevo cliente
                 cliente.setPuntos(0);
                 cliente.setTipoDoc(tipoDocumento);
 
-                // 5.guarda cliente en base de datos
+                // 6.guarda cliente en base de datos
                 Cliente clienteGuardado = clienteRepository.save(cliente);
 
-                // 6. Crear cuenta de autenticación
+                // 7. Crear cuenta de autenticación
                 // Validar que el nombre de usuario no exista en la base de datos antes de crear
                 // la cuenta de autenticación. Esto evita duplicados y asegura que cada cliente
                 // tenga un nombre de usuario único para iniciar sesión.
@@ -92,14 +102,14 @@ public class ClienteServicesImpl implements ClienteServices {
 
                 usuarioAuthRepository.save(auth);
 
-                // 7. Buscar el rol de cliente en la base de datos para extraer su ID y
+                // 8. Buscar el rol de cliente en la base de datos para extraer su ID y
                 // asignarlo al usuario creado. Esto asegura que el nuevo cliente tenga los
                 // permisos y accesos correspondientes a su rol en el sistema.
                 Rol rolCliente = rolRepository.findByNombre("ROLE_CLIENTE")
                                 .orElseThrow(() -> new EntityNotFoundException(
                                                 "Rol de cliente no encontrado"));
 
-                // 8. Registrar asignación del rol
+                // 9. Registrar asignación del rol
                 UsuarioAuthRol asignacion = UsuarioAuthRol.builder()
                                 .usuarioAuth(auth)
                                 .rol(rolCliente)
