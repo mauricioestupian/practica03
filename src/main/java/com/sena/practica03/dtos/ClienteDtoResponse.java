@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class ClienteDtoResponse extends UsuarioDto {
+public class ClienteDtoResponse extends UsuarioDtoResponse {
 
     private String tipCli;
     private int pts;

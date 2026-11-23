@@ -1,5 +1,7 @@
 package com.sena.practica03.models.usuarios;
 
+import com.sena.practica03.models.Ciudad;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,5 +51,10 @@ public class Usuario {
 
     @Column(name = "telefono", length = 20)
     private String tel;
+
+    // No es necesario agregar Departamento, ya que lo obtenemos mediante la ciudad.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ciudad_codigo", nullable = false)
+    private Ciudad ciudad;
 
 }

@@ -15,6 +15,8 @@ public interface ClienteServices {
 
     ClienteDtoResponse actualizar(Long id, ClienteDto clienteDto);
 
+    ClienteDtoResponse buscarPorDocumento(Byte tipoDocId, String numDoc);
+
     void eliminar(Long id);
 
 }

@@ -10,12 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sena.practica03.dtos.ClienteDto;
 import com.sena.practica03.dtos.ClienteDtoResponse;
 import com.sena.practica03.mappers.ClienteMapper;
+import com.sena.practica03.models.Ciudad;
 import com.sena.practica03.models.auth.Rol;
 import com.sena.practica03.models.auth.UsuarioAuth;
 import com.sena.practica03.models.auth.UsuarioAuthRol;
 import com.sena.practica03.models.usuarios.Cliente;
 import com.sena.practica03.models.usuarios.TipoDocumento;
 import com.sena.practica03.models.usuarios.TiposCliente;
+import com.sena.practica03.respositoryes.CiudadRepository;
 import com.sena.practica03.respositoryes.ClienteRepository;
 import com.sena.practica03.respositoryes.RolRepository;
 import com.sena.practica03.respositoryes.TipoClienteRepository;
@@ -41,6 +43,7 @@ public class ClienteServicesImpl implements ClienteServices {
         private final RolRepository rolRepository;
         private final TipoDocumentoRepository tipoDocumentoRepository;
         private final UsuarioRespository usuarioRespository;
+        private final CiudadRepository ciudadRepository;
 
         @Override
         // garantiza que todas las operaciones de base de datos dentro de un método se
@@ -51,7 +54,6 @@ public class ClienteServicesImpl implements ClienteServices {
         // import org.springframework.transaction.annotation.Transactional;
         @Transactional
         public ClienteDtoResponse guardar(ClienteDto clienteDto) {
-
 
                 // 1. buscar id de tipocliente en base de datos
                 TiposCliente tipo = ticlirepo.findById(clienteDto.getTipCli())
@@ -65,22 +67,28 @@ public class ClienteServicesImpl implements ClienteServices {
 
                 // 3. Validar que el documento no esté registrado
                 if (usuarioRespository.existsByTipoDocAndNumDoc(
-                tipoDocumento, clienteDto.getNumDoc())) {
-                    throw new IllegalArgumentException("El documento ya se encuentra registrado");
+                                tipoDocumento, clienteDto.getNumDoc())) {
+                        throw new IllegalArgumentException("El documento ya se encuentra registrado");
                 }
-                
-                
-                // 3. Convierte DTO en Entidad
+
+                // 4. validar ciudad, si no existe, lanzar excepción
+                Ciudad ciudad = ciudadRepository.findById(clienteDto.getCiudad())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Ciudad no encontrada"));
+
+                // 5. Convierte DTO en Entidad
                 Cliente cliente = clienteMapper.toEntidad(clienteDto);
 
-                // 4.El ID del cliente debe ser nul porque es autoincremental
+                // asigana datos que no se mapena en el mapper
+                // El ID del cliente debe ser nul porque es autoincremental
                 cliente.setId(null);
-
-                // 5.asigna tipocliente "id"
+                // asigna tipocliente "id"
                 cliente.setTipoCliente(tipo);
-
+                // asigna ciudad
+                cliente.setCiudad(ciudad);
                 // Inicializa los puntos en 0 al crear un nuevo cliente
                 cliente.setPuntos(0);
+                // asigna tipo de documento
                 cliente.setTipoDoc(tipoDocumento);
 
                 // 6.guarda cliente en base de datos
@@ -146,29 +154,61 @@ public class ClienteServicesImpl implements ClienteServices {
                 return clienteMapper.toDto(cliente);
         }
 
-        // 4 Actualizar Cliente
+        // Consulta cliente por numero de documento y tipo de documento teniendo en que
+        // se hereda de
+        // Usuario, por lo que se debe buscar en la tabla de Usuario.
+        @Override
+        @Transactional(readOnly = true)
+        public ClienteDtoResponse buscarPorDocumento(
+                        Byte tipoDocId, String numDoc) {
+
+                Cliente cliente = clienteRepository
+                                .findByTipoDocIdAndNumDoc(numDoc, tipoDocId)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Cliente no encontrado con el documento indicado"));
+
+                return clienteMapper.toDto(cliente);
+        }
+
+        // Actualizar Cliente
         @Override
         @Transactional
         public ClienteDtoResponse actualizar(Long id, ClienteDto clienteDto) {
-                Cliente clienteExistente = clienteRepository.findById(id)
+
+                // Validar que el cliente exista en la base de datos antes de intentar
+                // actualizarlo. Esto asegura que no se intente modificar un registro
+                // inexistente, lo que podría causar errores o inconsistencias en la aplicación.
+                Cliente clienteExsistente = clienteRepository.findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException(
                                                 "No se encontro el cliente con ID: " + id));
 
+                // validar ciudad, si no existe, lanzar excepción
+                Ciudad ciudad = ciudadRepository.findById(clienteDto.getCiudad())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Ciudad no encontrada"));
+                // validar tipo de Cliente, si no existe, lanzar excepción
+                TiposCliente tipoCliente = ticlirepo.findById(clienteDto.getTipCli())
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Tipo de cliente no encontrado"));
+
+                // Actualizar los atributos del cliente existente con los valores del DTO
+                // recibido.
+                // Esto permite modificar la información del cliente en la base de datos según
+                // los datos proporcionados
                 // Artibutos heredadosdel Usuario
-                clienteExistente.setNom(clienteDto.getNomb());
-                clienteExistente.setApe(clienteDto.getApell());
-                clienteExistente.setDir(clienteDto.getDirec());
-                clienteExistente.setTel(clienteDto.getTele());
+                clienteExsistente.setNom(clienteDto.getNomb());
+                clienteExsistente.setApe(clienteDto.getApell());
+                clienteExsistente.setDir(clienteDto.getDirec());
+                clienteExsistente.setTel(clienteDto.getTele());
+                clienteExsistente.setCiudad(ciudad);
 
                 // Atributos propios del Cliente
-                clienteExistente.setTipoCliente(ticlirepo.findById(clienteDto.getTipCli())
-                                .orElseThrow(() -> new EntityNotFoundException(
-                                                "No se encuentra tipo de cliente " + clienteDto.getTipCli())));
+                clienteExsistente.setTipoCliente(tipoCliente);
                 // clienteExistente.setPuntos(clienteDto.getPts());
                 // Los puntos deben modificarse mediante una operación específica, por ejemplo,
                 // cuando el cliente realiza una compra o recibe un servicio que acumula puntos.
 
-                Cliente clienteActualizado = clienteRepository.save(clienteExistente);
+                Cliente clienteActualizado = clienteRepository.save(clienteExsistente);
 
                 return clienteMapper.toDto(clienteActualizado);
         }

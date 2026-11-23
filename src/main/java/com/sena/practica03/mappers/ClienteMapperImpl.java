@@ -19,17 +19,23 @@ public class ClienteMapperImpl implements ClienteMapper {
 
         // concertir de Cliente a ClienteDTO
         return ClienteDtoResponse.builder()
-                // atributos de UsuarioDto
+                // atributos de UsuarioDtoResponse
                 .id(cliente.getId())
                 .nomb(cliente.getNom())
                 .apell(cliente.getApe())
                 .direc(cliente.getDir())
                 .tele(cliente.getTel())
-                .tipoDoc(cliente.getTipoDoc().getId())
-                .nomTipoDoc(cliente.getTipoDoc().getNombre())
+                // Nombre del tipo de documento
+                .tipoDoc(cliente.getTipoDoc().getNombre())
                 .numDoc(cliente.getNumDoc())
+                // Ubicación
+                .ciudad(cliente.getCiudad().getNombre())
+                .departamento(
+                        cliente.getCiudad()
+                                .getDepartamento()
+                                .getNombre())
 
-                // atributos de ClienteDto
+                // atributos de ClienteDtoResponse
                 .tipCli(cliente.getTipoCliente().getNom_TipoCli())
                 .pts(cliente.getPuntos())
                 .build();
@@ -50,12 +56,11 @@ public class ClienteMapperImpl implements ClienteMapper {
                 .ape(clienteDto.getApell())
                 .tel(clienteDto.getTele())
                 .dir(clienteDto.getDirec())
-
-                // numero de documento y tipo de document
                 .numDoc(clienteDto.getNumDoc())
                 // atributos de ClienteDto
                 .tipoCliente(null) // Se establece como null, ya que se asignará posteriormente en el servicio
                 .tipoDoc(null) // Se establece como null, ya que se asignará posteriormente en el servicio
+                .ciudad(null)
 
                 // No es necesario mapear tipo de cliente porque
                 // tiene relacion con la entidad TiposCliente

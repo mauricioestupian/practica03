@@ -9,12 +9,14 @@ public interface TrabajadorServices {
 
     TrabajadorDtoResponse guardar(TrabajadorDto dto);
 
-     List<TrabajadorDtoResponse> listarTrab();
+    List<TrabajadorDtoResponse> listarTrab();
 
-     TrabajadorDtoResponse trabId(Long id);
+    TrabajadorDtoResponse trabId(Long id);
 
-     TrabajadorDtoResponse trabupdate(Long id,TrabajadorDto dto );
+    TrabajadorDtoResponse buscarPorDocumento(Byte tipoDocId, String numDoc);
 
-     void eliminar(Long id);
+    TrabajadorDtoResponse trabupdate(Long id, TrabajadorDto dto);
+
+    void eliminar(Long id);
 
 }

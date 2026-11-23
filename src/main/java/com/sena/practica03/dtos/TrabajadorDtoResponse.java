@@ -11,11 +11,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class TrabajadorDtoResponse extends UsuarioDto {
+public class TrabajadorDtoResponse extends UsuarioDtoResponse {
 
     private String cargo;
     private Double sueldo;
-    // extraemos el tipo de documento para mostrarlo en la respuesta
-    private String nomTipoDoc;
+    // eliminamos nomTipoDoc, porque el nombre del
+    // documento ya está representado por tipoDoc en la clase padre.
 
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sena.practica03.dtos.UsuarioDto;
+import com.sena.practica03.dtos.UsuarioDtoResponse;
 import com.sena.practica03.services.UsuarioServices;
 
 import jakarta.validation.Valid;
@@ -28,9 +29,9 @@ public class UsuarioController {
 
     // 1 Registrar nuevo usuario
     @PostMapping
-    public ResponseEntity<UsuarioDto> guardar(@Valid @RequestBody UsuarioDto usuarioDto) {
+    public ResponseEntity<UsuarioDtoResponse> guardar(@Valid @RequestBody UsuarioDto usuarioDto) {
 
-        UsuarioDto usuarioguardado = usuarioServices.guardar(usuarioDto);
+        UsuarioDtoResponse usuarioguardado = usuarioServices.guardar(usuarioDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(usuarioguardado);
@@ -38,31 +39,39 @@ public class UsuarioController {
 
     // Listar Usuarios
     @GetMapping
-    public ResponseEntity<List<UsuarioDto>> listarTodos() {
+    public ResponseEntity<List<UsuarioDtoResponse>> listarTodos() {
         return ResponseEntity.ok(usuarioServices.listarTodos());
     }
 
     // Consulta usuario por Id
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDto> consutaId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioDtoResponse> consutaId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioServices.buscarPorId(id));
     }
 
     // consulta por post
     @PostMapping("/buscar")
-    public ResponseEntity<UsuarioDto> consutaIdpost(@RequestBody UsuarioDto dto) {
-        UsuarioDto encontrado = usuarioServices.buscarPorId(dto.getId());
+    public ResponseEntity<UsuarioDtoResponse> consutaIdpost(@RequestBody UsuarioDto dto) {
+        UsuarioDtoResponse encontrado = usuarioServices.buscarPorId(dto.getId());
+
+        return ResponseEntity.ok(encontrado);
+    }
+
+    // Consulta usuario por numero de documento
+    @GetMapping("/buscaid")
+    public ResponseEntity<UsuarioDtoResponse> consutaNumDoc(@RequestBody UsuarioDto dto) {
+        UsuarioDtoResponse encontrado = usuarioServices.buscarPorNumDoc(dto.getNumDoc());
 
         return ResponseEntity.ok(encontrado);
     }
 
     // actualizar
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioDto> update(
+    public ResponseEntity<UsuarioDtoResponse> update(
             @PathVariable Long id,
             @RequestBody UsuarioDto dto) {
 
-        UsuarioDto usuarioActualizado = usuarioServices.actualizar(
+        UsuarioDtoResponse usuarioActualizado = usuarioServices.actualizar(
                 id, dto);
 
         return ResponseEntity.ok(usuarioActualizado);
@@ -70,10 +79,10 @@ public class UsuarioController {
 
     // actualizar ocultando ID
     @PutMapping("/actualizar")
-    public ResponseEntity<UsuarioDto> update2(
+    public ResponseEntity<UsuarioDtoResponse> update2(
             @RequestBody UsuarioDto dto) {
         Long id = dto.getId();
-        UsuarioDto usuarioActualizado = usuarioServices.actualizar(
+        UsuarioDtoResponse usuarioActualizado = usuarioServices.actualizar(
                 id, dto);
 
         return ResponseEntity.ok(usuarioActualizado);

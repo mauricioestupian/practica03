@@ -58,6 +58,14 @@ public class TrabajadorController {
         return ResponseEntity.ok(traSer.trabId(id));
     }
 
+    // Consulta trabajador por numero de documento y tipo de documento
+    @GetMapping("/buscar")
+    public ResponseEntity<TrabajadorDtoResponse> buscarPorDocumento(@RequestBody TrabajadorDto dto) {
+        Byte tipoDocId = dto.getTipoDoc();
+        String numDoc = dto.getNumDoc();
+        return ResponseEntity.ok(traSer.buscarPorDocumento(tipoDocId, numDoc));
+    }
+
     // Actualiza Trabajador por el Id
     @PutMapping("/{id}")
     public ResponseEntity<TrabajadorDtoResponse> actualizaTrab(@Valid @PathVariable Long id,

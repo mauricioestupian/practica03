@@ -45,6 +45,13 @@ public class UsuarioDto {
     @NotNull(message = "El número de documento es obligatorio")
     private String numDoc;
 
+    // Código DANE de la ciudad
+    @NotBlank(message = "La ciudad es obligatoria")
+    @Pattern(regexp = "^[0-9]{5}$", message = "La ciudad debe tener un código DANE de 5 dígitos")
+    private String ciudad;
+
+    // No es necesario recibir el departamento ya que se optiene desde la ciudad.
+
     // Credenciales para el registro
     @NotBlank(message = "El nombre de usuario es obligatorio")
     // El user debe ser un correo electrónico válido
