@@ -54,7 +54,7 @@ public class Usuario {
 
     // No es necesario agregar Departamento, ya que lo obtenemos mediante la ciudad.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ciudad_codigo", nullable = false)
+    @JoinColumn(name = "ciudad_codigo")
     private Ciudad ciudad;
 
 }

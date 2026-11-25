@@ -140,7 +140,7 @@ public class TrabajadorServicesImpl implements TrabajadorServices {
         @Override
         @Transactional(readOnly = true)
         public TrabajadorDtoResponse buscarPorDocumento(Byte tipoDocId, String numDoc) {
-                Trabajador trabajador = traRep.findByTipoDocumentoIdAndNumDocumento(tipoDocId, numDoc);
+                Trabajador trabajador = traRep.findByTipoDoc_IdAndNumDoc(tipoDocId, numDoc);
 
                 if (trabajador == null) {
                         throw new EntityNotFoundException(

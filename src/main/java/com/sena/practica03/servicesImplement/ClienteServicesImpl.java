@@ -99,6 +99,11 @@ public class ClienteServicesImpl implements ClienteServices {
                 // la cuenta de autenticación. Esto evita duplicados y asegura que cada cliente
                 // tenga un nombre de usuario único para iniciar sesión.
                 if (usuarioAuthRepository.existsByUser(clienteDto.getUser())) {
+
+                        /*
+                         * El IllegalArgumentException es quien activa el segundo metodo de
+                         * GlobalExceptionHandler
+                         */
                         throw new IllegalArgumentException(
                                         "El nombre de usuario ya está registrado");
                 }
@@ -143,6 +148,11 @@ public class ClienteServicesImpl implements ClienteServices {
         }
 
         // Consulta cliente por ID
+        /*
+         * ESte metodo avtiva el GlobalExceptionHandler cuando no exista el usuario por
+         * el id buscado
+         * el EntityNotFoundException es quien activa el GlobalExceptionHandler
+         */
         @Override
         @Transactional(readOnly = true)
         public ClienteDtoResponse buscaCliId(Long id) {

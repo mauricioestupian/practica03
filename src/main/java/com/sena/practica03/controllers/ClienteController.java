@@ -47,7 +47,7 @@ public class ClienteController {
 
     // Consultar Cliente por Id por url
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteDtoResponse> cliporId(@RequestParam Long id) {
+    public ResponseEntity<ClienteDtoResponse> cliporId(@PathVariable Long id) {
         return ResponseEntity.ok(cliser.buscaCliId(id));
     }
 
@@ -58,7 +58,7 @@ public class ClienteController {
     }
 
     // Consultar Cliente por Documento
-    @GetMapping("/buscar")
+    @GetMapping("/buscar/documento")
     public ResponseEntity<ClienteDtoResponse> cliporDoc(@RequestParam Byte tipoDocId, @RequestParam String numDoc) {
         return ResponseEntity.ok(cliser.buscarPorDocumento(tipoDocId, numDoc));
     }
